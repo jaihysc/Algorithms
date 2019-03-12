@@ -5,25 +5,20 @@ let xPoints = []; //Stores points
 let yPoints = [];
 
 //Slope and Y-int for line
-let m, b;
+let a, b, c;
 
-const learningRate = 0.5;
-const optimizer = tf.train.sgd(learningRate);
+const learningRate = 0.1;
+const optimizer = tf.train.adam(learningRate); //Different algorithems may be faster for certain applications
 
 // eslint-disable-next-line no-unused-vars
 function setup() {
 	createCanvas(600, 600);
 
-	//Add some default values to the x and y points
-	// xPoints.push(0.1);
-	// xPoints.push(0);
-	// yPoints.push(0.2);
-	// yPoints.push(0.15);
-
 	//Because these are variables, tf defaults to adjust these when optimizing
 	//Since I am not passing it a var list
-	m = tf.variable(tf.scalar(random(1))); //Randomly get a number for slope
+	a = tf.variable(tf.scalar(random(1))); //Randomly get a number for slope
 	b = tf.variable(tf.scalar(random(1))); //tf.variable to allow the value to change
+	c = tf.variable(tf.scalar(random(1)));
 }
 
 //Main
@@ -48,11 +43,11 @@ function deNormalize(val, max, min) {
 
 function predict(xArr) {
 	//convert x array into tensor
-	const xTens = tf.tensor1d(xArr);
+	const xTsrs = tf.tensor1d(xArr);
 
-	//y = mx + b
-	const yTens = xTens.mul(m).add(b); //Apply line formula to x
-	return yTens;
+	//y = ax^2 + bx + c
+	const yTsrs = xTsrs.square().mul(a).add(xTsrs.mul(b)).add(c);
+	return yTsrs;
 }
 function loss(pred, labels) {
 	return pred.sub(labels).square().mean();
@@ -94,30 +89,42 @@ function draw() {
 	}
 
 	//Don't forget to clean up!!
-	//Take 2 points and draw it
-	const xs = [0, 1]; // bottom and top
-	const ys = tf.tidy(() => predict(xs));
+	
+	//Draw the curve
+	const curveX = []; //Store points for the curve
+	for (let i = 0; i <= 1; i += 0.005) {
+		curveX.push(i);
+	}
+	//console.log(curveX);
 
-	//Denormalize
-	let x1 = map(xs[0], 0, 1, 0, width);
-	let x2 = map(xs[1], 0, 1, 0, width);
+	const ys = tf.tidy(() => predict(curveX));
 
 	//Get the values of ys back from tensors
-	let lineY = ys.dataSync();
-	let y1 = map(lineY[0], 0, 1, 0, height); // switch 0, height around to make it perpendicular
-	let y2 = map(lineY[1], 0, 1, 0, height);
+	let curveY = ys.dataSync();
 
+	//Draw the parabola
+	beginShape();
 	strokeWeight(1);
 	stroke(255, 0, 0);
-	line(x1, y1, x2, y2);
+	noFill();
+	for (let i = 0; i < curveX.length; i++) {
+		let x = map(curveX[i], 0, 1, 0, width);
+		let y = map(curveY[i], 0, 1, 0, height);
+
+		vertex(x, y);
+	}
+	endShape();
 	stroke(0);
+
+	//Print the formula
+	fill(255);
+	//y = ax^2 + bx + c
+	text("0, 0 at top left", 10, height - 30)
+	text("y = " + (a.dataSync() * -1) + "x^2 + " + (b.dataSync() * -1) + "x + " + (c.dataSync() * -1), 10, height - 10);
+	//Multiply everything by -1 to invert as 0,0 is at top left
 	
 	ys.dispose();
-	
-	fill(255);
-	text("0, 0 at top left", 10, height - 30)
-	text("y = " + (m.dataSync() * -1) + "x + " + (b.dataSync() * -1), 10, height - 10);
-	//Multiply everything by -1 to invert it since X Y counts from top left
+
 	//console.log(tf.memory().numTensors);
 	//noLoop();
 }
