@@ -7,7 +7,7 @@ let yPoints = [];
 //Slope and Y-int for line
 let a, b, c;
 
-const learningRate = 0.1;
+const learningRate = 0.3;
 const optimizer = tf.train.adam(learningRate); //Different algorithems may be faster for certain applications
 
 // eslint-disable-next-line no-unused-vars
