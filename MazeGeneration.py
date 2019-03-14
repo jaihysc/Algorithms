@@ -115,6 +115,24 @@ def removeWalls(curr, ahed):
         curr.walls[3] = False
 
 #Main
+doneGenerating = False
+while not doneGenerating:
+    current.visited = True
+    nextCell = current.checkNeighbours()
+    #current.highlight()
+    if nextCell:
+        nextCell.visited = True
+        stack.append(current) #Push stack
+        removeWalls(current, nextCell)
+        current = nextCell
+    elif stack: #If next is undefined, backtrack through stack
+        current = stack.pop(len(stack) - 1) #Pop the last item in the array
+        #Backtrack to the previous cell
+    else:
+        print("Done!")
+        doneGenerating = True
+
+#Display
 running = True
 while running:
     #Keep loop running at right speed
@@ -134,18 +152,5 @@ while running:
         for x in range(cols):
             grid[y][x].show()
 
-    current.visited = True
-    nextCell = current.checkNeighbours()
-    current.highlight()
-    if nextCell:
-        nextCell.visited = True
-        stack.append(current) #Push stack
-        removeWalls(current, nextCell)
-        current = nextCell
-    elif stack: #If next is undefined, backtrack through stack
-        current = stack.pop(len(stack) - 1) #Pop the last item in the array
-        #Backtrack to the previous cell
-    else:
-        print("Done!")
     pygame.display.flip() #Draw items before this
 pygame.quit()

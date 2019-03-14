@@ -115,7 +115,7 @@ function draw() {
 	ys.dispose();
 	
 	fill(255);
-	text("0, 0 at top left", 10, height - 30)
+	text("0, 0 at top left", 10, height - 30);
 	text("y = " + (m.dataSync() * -1) + "x + " + (b.dataSync() * -1), 10, height - 10);
 	//Multiply everything by -1 to invert it since X Y counts from top left
 	//console.log(tf.memory().numTensors);
