@@ -153,15 +153,19 @@ while not doneGenerating:
     current.visited = True
     nextCell = current.checkNeighbours()
     #current.highlight()
+
     if nextCell:
         nextCell.visited = True
         stack.append(current) #Push stack
         removeWalls(current, nextCell)
         current = nextCell
-    elif stack: #If next is undefined, backtrack through stack
+
+    #Randomly pop stacks to increase randomness
+    if (not nextCell and stack): #or random.randrange(5) == 0: #If next is undefined, backtrack through stack
         current = stack.pop(len(stack) - 1) #Pop the last item in the array
         #Backtrack to the previous cell
-    else:
+        
+    if not stack:
         print("Maze generation complete")
         doneGenerating = True
 
@@ -184,8 +188,8 @@ for y in range(rows):
 openSet = [] #Nodes that NEED to be evaluated
 closedSet = [] #Nodes FINISHED evaluating
 
-start = AStarGrid[0][0] #Start location
-end = AStarGrid[rows - 1][cols - 1] #Target destination
+start = AStarGrid[rows - 1][0] #Start location
+end = AStarGrid[0][cols - 1] #Target destination
 
 openSet.append(start) #Starting with start location
 
